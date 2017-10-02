@@ -5,7 +5,7 @@
 ** login: xkadle34
 */
 
-int int main(int argc, char const *argv[]) {
+int main(int argc, char const *argv[]) {
   /* code */
   return 0;
 }
