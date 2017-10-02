@@ -1,5 +1,4 @@
 /*
-**
 ** VUT FIT 2017 - ISA
 ** Klient POP3 s podporou TLS
 ** Eliska Kadlecova
@@ -8,6 +7,5 @@
 
 int int main(int argc, char const *argv[]) {
   /* code */
-
   return 0;
 }
