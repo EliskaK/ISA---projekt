@@ -5,11 +5,19 @@
 ** login: xkadle34
 */
 #include <iostream>
+#include <string>
+#include <algorithm>
+#include "main.hpp"
 
-int main(int argc, char const *argv[]) {
+
+
+int main(int argc, char *argv[]) {
   //test na pocet argumentu
   if (argc < 2){
     error("Zadano malo argumentu. Pouzijte parametr --help pro zobrazeni napovedy", 1);
+  }
+  if (parseArg(argv, argv + argc, "--help", true)){
+    help();
   }
   //pocet argumentu je OK
   else{
@@ -21,9 +29,9 @@ int main(int argc, char const *argv[]) {
 /*
 * Parsovani zadanych argumentu
 */
-char *parseArg(const std::string &opt, bool value){
-  char ** end = argv + argc;
-  char ** begin = argv;
+char* parseArg(char ** begin, char ** end, const std::string & opt, bool value){
+  /*char ** end = argv + argc;
+  char ** begin = argv;*/
   char ** itr = std::find(begin, end, opt);
   if(value == true){
     if (itr != end){
@@ -31,7 +39,7 @@ char *parseArg(const std::string &opt, bool value){
         return *itr;
       }
       else {
-        error("Argument " + opt + "ma zadano malo parametru.", 2);
+        error("Argument " + opt + " ma zadano malo parametru.", 2);
       }
     }
   }
@@ -60,5 +68,16 @@ void help(){
   std::cout << "popcl --help ---> zobrazi tuto napovedu a ukonci se" << '\n';
   std::cout << "popcl server  [-p <port>] [-T|-S [-c <certfile>]" << '\n';
   std::cout << "[-C <certaddr>]] [-d] [-n] -a <auth_file> -o <out_dir>" << '\n';
+  std::cout << "server          - povinny parametr (IP adresa nebo domenove jmeno)" << '\n';
+  std::cout << "-p <port>       - specifikuje číslo portu na serveru" << '\n';
+  std::cout << "-T              - zapina sifrovani" << '\n';
+  std::cout << "-S              - navaze nesifrovane spojeni se serverem a pomoci prikazu" << '\n';
+  std::cout << "                  STLS prejde na sifrovanou verzi protokolu" << '\n';
+  std::cout << "-c <certfile>   - definuje soubor s certifikaty" << '\n';
+  std::cout << "-C <certaddr>   - definuje adresar ve kterem se maji vyhledavat certifikaty" << '\n';
+  std::cout << "-d              - smaze zpravy" << '\n';
+  std::cout << "-n              - stahnou se pouze nove zpravy" << '\n';
+  std::cout << "-a <auth_file>  - povinny parametr, vynucuje autentizaci" << '\n';
+  std::cout << "-o <out_dir>    - povinny parametr, specifikuje vystupni adresar" << '\n';
   exit(0);
 }
