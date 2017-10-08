@@ -7,24 +7,46 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+
 #include "main.hpp"
 
+/*
+* Struktura, kde jsou uchovany vsechny prepinace
+*/
+struct prepinac {
+  std::string server;
+  int port;
+  std::string certfile;
+  std::string certaddr;
+  bool new_only;
+  bool del; //delete
+  std::string auth_file;
+  std::string out_dir;
+}
 
-
+/*
+*
+*/
 int main(int argc, char *argv[]) {
   //test na pocet argumentu
   if (argc < 2){
     error("Zadano malo argumentu. Pouzijte parametr --help pro zobrazeni napovedy", 1);
   }
-  if (parseArg(argv, argv + argc, "--help", true)){
+  if (parseArg(argv, argv + argc, "--help", false)){
     help();
   }
+  //TODO poznat server
   //pocet argumentu je OK
   else{
     //TODO
   }
   return 0;
 }
+
+/*
+*
+*/
+
 
 /*
 * Parsovani zadanych argumentu
@@ -49,8 +71,6 @@ char* parseArg(char ** begin, char ** end, const std::string & opt, bool value){
   return 0;
 }
 
-
-
 /*
 * Tiskne chybovou hlasku na err a ukonci se s danym chybovym kodem
 */
@@ -69,7 +89,7 @@ void help(){
   std::cout << "popcl server  [-p <port>] [-T|-S [-c <certfile>]" << '\n';
   std::cout << "[-C <certaddr>]] [-d] [-n] -a <auth_file> -o <out_dir>" << '\n';
   std::cout << "server          - povinny parametr (IP adresa nebo domenove jmeno)" << '\n';
-  std::cout << "-p <port>       - specifikuje číslo portu na serveru" << '\n';
+  std::cout << "-p <port>       - specifikuje cislo portu na serveru" << '\n';
   std::cout << "-T              - zapina sifrovani" << '\n';
   std::cout << "-S              - navaze nesifrovane spojeni se serverem a pomoci prikazu" << '\n';
   std::cout << "                  STLS prejde na sifrovanou verzi protokolu" << '\n';
