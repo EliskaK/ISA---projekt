@@ -13,21 +13,25 @@
 /*
 * Struktura, kde jsou uchovany vsechny prepinace
 */
-struct prepinac {
+struct prepinace {
   std::string server;
   int port;
+  bool pop3s = false; //-T
+  bool stls = false; //-S
   std::string certfile;
   std::string certaddr;
-  bool new_only;
-  bool del; //delete
+  bool new_only = false;
+  bool del = false; //delete
   std::string auth_file;
   std::string out_dir;
-}
+};
 
 /*
 *
 */
 int main(int argc, char *argv[]) {
+  struct prepinace prepinac;
+
   //test na pocet argumentu
   if (argc < 2){
     error("Zadano malo argumentu. Pouzijte parametr --help pro zobrazeni napovedy", 1);
@@ -36,10 +40,86 @@ int main(int argc, char *argv[]) {
     help();
   }
   //TODO poznat server
-  //pocet argumentu je OK
-  else{
-    //TODO
+
+  //port:
+  char *p;
+  p = parseArg(argv, argv + argc, "-p", true);
+  if (p){
+    prepinac.port = std::atoi(p);
   }
+  else if (prepinac.pop3s == true){ //pokud je zadan parametr -T
+    prepinac.port = 995;
+  }
+  else{
+    prepinac.port = 110;
+  }
+  std::cout << "port: " << prepinac.port <<'\n';
+
+  char * cf; //certfile
+  char * ca; //certaddr
+  //parametr -T
+  if(parseArg(argv, argv + argc, "-T", false)){
+    prepinac.pop3s = true;
+    cf = parseArg(argv, argv + argc, "-c", true);
+    ca = parseArg(argv, argv + argc, "-C", true);
+    if(cf){
+      prepinac.certfile = cf;
+    }
+    if(ca){
+      prepinac.certaddr = ca;
+    }
+    else{
+      //TODO - SSL_CTX_set_default_verify_paths()
+    }
+  }
+  std::cout << "T: " << prepinac.pop3s <<'\n';
+
+  //parametr -S
+  if(parseArg(argv, argv + argc, "-S", false)){
+    prepinac.stls = true;
+    cf = parseArg(argv, argv + argc, "-c", true);
+    ca = parseArg(argv, argv + argc, "-C", true);
+    if(cf){
+      prepinac.certfile = cf;
+    }
+    if(ca){
+      prepinac.certaddr = ca;
+    }
+    else{
+      //TODO - SSL_CTX_set_default_verify_paths()
+    }
+  }
+  std::cout << "S: " << prepinac.stls <<'\n';
+
+  std::cout << "certfile: " << prepinac.certfile <<'\n';
+  std::cout << "certaddr: " << prepinac.certaddr <<'\n';
+  //nove zpravy
+  if (parseArg(argv, argv + argc, "-n", false)){
+    prepinac.new_only = true;
+  }
+  std::cout << "new_only: " << prepinac.new_only <<'\n';
+
+  if (parseArg(argv, argv + argc, "-d", false)){
+    prepinac.del = true;
+  }
+  std::cout << "del: " << prepinac.del <<'\n';
+
+  //auth_file
+  char * auth;
+  auth = parseArg(argv, argv + argc, "-a", true);
+  if (auth){
+    prepinac.auth_file = auth;
+  }
+  std::cout << "auth_file: " << prepinac.auth_file <<'\n';
+
+  //out_dir
+  char * out;
+  out = parseArg(argv, argv + argc, "-o", true);
+  if (out){
+    prepinac.out_dir = out;
+  }
+  std::cout << "out_dir: " << prepinac.out_dir <<'\n';
+
   return 0;
 }
 
@@ -52,8 +132,6 @@ int main(int argc, char *argv[]) {
 * Parsovani zadanych argumentu
 */
 char* parseArg(char ** begin, char ** end, const std::string & opt, bool value){
-  /*char ** end = argv + argc;
-  char ** begin = argv;*/
   char ** itr = std::find(begin, end, opt);
   if(value == true){
     if (itr != end){
