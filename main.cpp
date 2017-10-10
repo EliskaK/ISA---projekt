@@ -27,9 +27,9 @@ struct prepinace {
 };
 
 /*
-*
+* Podle zvolenych prepinacu se udela konfigurace
 */
-int main(int argc, char *argv[]) {
+struct prepinace savingParams(int argc, char *argv[]) {
   struct prepinace prepinac;
 
   //test na pocet argumentu
@@ -39,21 +39,8 @@ int main(int argc, char *argv[]) {
   if (parseArg(argv, argv + argc, "--help", false)){
     help();
   }
-  //TODO poznat server
-
-  //port:
-  char *p;
-  p = parseArg(argv, argv + argc, "-p", true);
-  if (p){
-    prepinac.port = std::atoi(p);
-  }
-  else if (prepinac.pop3s == true){ //pokud je zadan parametr -T
-    prepinac.port = 995;
-  }
-  else{
-    prepinac.port = 110;
-  }
-  std::cout << "port: " << prepinac.port <<'\n';
+  prepinac.server = argv[1];
+  std::cout << "server: " << prepinac.server <<'\n';
 
   char * cf; //certfile
   char * ca; //certaddr
@@ -93,6 +80,21 @@ int main(int argc, char *argv[]) {
 
   std::cout << "certfile: " << prepinac.certfile <<'\n';
   std::cout << "certaddr: " << prepinac.certaddr <<'\n';
+
+  //port:
+  char *p;
+  p = parseArg(argv, argv + argc, "-p", true);
+  if (p){
+    prepinac.port = std::atoi(p);
+  }
+  else if (prepinac.pop3s == true){ //pokud je zadan parametr -T
+    prepinac.port = 995;
+  }
+  else{
+    prepinac.port = 110;
+  }
+  std::cout << "port: " << prepinac.port <<'\n';
+  
   //nove zpravy
   if (parseArg(argv, argv + argc, "-n", false)){
     prepinac.new_only = true;
@@ -120,13 +122,8 @@ int main(int argc, char *argv[]) {
   }
   std::cout << "out_dir: " << prepinac.out_dir <<'\n';
 
-  return 0;
+  return prepinac;
 }
-
-/*
-*
-*/
-
 
 /*
 * Parsovani zadanych argumentu
@@ -178,4 +175,10 @@ void help(){
   std::cout << "-a <auth_file>  - povinny parametr, vynucuje autentizaci" << '\n';
   std::cout << "-o <out_dir>    - povinny parametr, specifikuje vystupni adresar" << '\n';
   exit(0);
+}
+
+int main(int argc, char *argv[]) {
+  struct prepinace konfigurace = savingParams(argc, argv);
+  //std::cout << konfigurace.port << '\n';
+  return 0;
 }
