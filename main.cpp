@@ -93,8 +93,9 @@ struct prepinace savingParams(int argc, char *argv[]) {
   else{
     prepinac.port = 110;
   }
+
   std::cout << "port: " << prepinac.port <<'\n';
-  
+
   //nove zpravy
   if (parseArg(argv, argv + argc, "-n", false)){
     prepinac.new_only = true;
@@ -112,6 +113,9 @@ struct prepinace savingParams(int argc, char *argv[]) {
   if (auth){
     prepinac.auth_file = auth;
   }
+  else{
+    error("Povinny parametr -a chybi", 2);
+  }
   std::cout << "auth_file: " << prepinac.auth_file <<'\n';
 
   //out_dir
@@ -119,6 +123,9 @@ struct prepinace savingParams(int argc, char *argv[]) {
   out = parseArg(argv, argv + argc, "-o", true);
   if (out){
     prepinac.out_dir = out;
+  }
+  else{
+    error("Povinny parametr -o chybi", 2);
   }
   std::cout << "out_dir: " << prepinac.out_dir <<'\n';
 
