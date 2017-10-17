@@ -9,6 +9,7 @@
 #include <algorithm>
 
 #include "main.hpp"
+#include "pop3.hpp"
 
 /*
 * Struktura, kde jsou uchovany vsechny prepinace
@@ -187,5 +188,13 @@ void help(){
 int main(int argc, char *argv[]) {
   struct prepinace konfigurace = savingParams(argc, argv);
   //std::cout << konfigurace.port << '\n';
+  POP3 pop = POP3();
+
+  if(konfigurace.pop3s == true){ // -T
+    pop.connect_server_sec();
+  }
+  else{
+    pop.connect_server(konfigurace.server, konfigurace.port);
+  }
   return 0;
 }
