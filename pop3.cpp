@@ -6,7 +6,7 @@
 */
 #include <sys/socket.h>
 
-#include "pop3.hpp"
+#include "main.hpp"
 
 POP3::POP3(){ //konstruktor
 
@@ -15,16 +15,16 @@ POP3::POP3(){ //konstruktor
 /*
 * Sifrovane pripojeni k serveru
 */
-bool POP3::connect_server_sec(){
+/*bool POP3::connect_server_sec(){
 
-}
+}*/
 
 /*
 * Pripojeni k serveru
 */
-bool POP3::connect_server(const char* server, int port){
+bool POP3::connect_server(std::string server, int port){
   struct hostent *host;
-  host = gethostbyname(server);
+  host = gethostbyname(server.c_str());
   if (host == NULL){
     error("Server se nepodarilo nacist", 4);
   }
@@ -37,5 +37,7 @@ bool POP3::connect_server(const char* server, int port){
   struct sockaddr_in server_socket;
   server_socket.sin_family = AF_INET;
   server_socket.sin_port = htons(port);
+
+  return true;
 
 }

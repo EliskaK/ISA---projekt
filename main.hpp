@@ -4,6 +4,10 @@
 ** Eliska Kadlecova
 ** login: xkadle34
 */
+#include <iostream>
+#include <string>
+#include <algorithm>
+
 #include "pop3.hpp"
 
 int main(int argc, char *argv[]);
