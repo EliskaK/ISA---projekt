@@ -4,6 +4,7 @@
 ** Eliska Kadlecova
 ** login: xkadle34
 */
+#include "pop3.hpp"
 
 int main(int argc, char *argv[]);
 struct prepinace savingParams(int argc, char *argv[]);

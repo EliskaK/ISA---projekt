@@ -9,8 +9,8 @@
 class POP3{
   public:
     POP3();
-    bool POP3::connect_server(const char* server, int port);
+    bool connect_server(const char* server, int port);
   private:
     BIO *bio;
     SSL_CTX *ctx;
-}
+};

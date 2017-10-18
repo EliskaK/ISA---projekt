@@ -9,7 +9,7 @@
 #include <algorithm>
 
 #include "main.hpp"
-#include "pop3.hpp"
+
 
 /*
 * Struktura, kde jsou uchovany vsechny prepinace
@@ -191,7 +191,7 @@ int main(int argc, char *argv[]) {
   POP3 pop = POP3();
 
   if(konfigurace.pop3s == true){ // -T
-    pop.connect_server_sec();
+    //pop.connect_server_sec();
   }
   else{
     pop.connect_server(konfigurace.server, konfigurace.port);

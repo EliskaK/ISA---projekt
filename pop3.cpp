@@ -34,5 +34,8 @@ bool POP3::connect_server(const char* server, int port){
     error("Nepodarilo se vytvorit socket", 4);
   }
 
+  struct sockaddr_in server_socket;
+  server_socket.sin_family = AF_INET;
+  server_socket.sin_port = htons(port);
 
 }
