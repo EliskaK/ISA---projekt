@@ -7,6 +7,8 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <fstream>
+#include <string.h>
 
 #include "pop3.hpp"
 

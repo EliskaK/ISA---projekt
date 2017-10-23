@@ -10,6 +10,8 @@
 #include <arpa/inet.h>
 #include <openssl/bio.h>
 #include <netdb.h>
+#include <stdio.h>
+#include <string.h>
 
 //#include "main.hpp"
 

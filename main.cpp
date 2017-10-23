@@ -4,10 +4,9 @@
 ** Eliska Kadlecova
 ** login: xkadle34
 */
-#include <iostream>
+/*#include <iostream>
 #include <string>
-#include <algorithm>
-
+#include <algorithm>*/
 #include "main.hpp"
 
 
@@ -185,16 +184,53 @@ void help(){
   exit(0);
 }
 
+
+
 int main(int argc, char *argv[]) {
   struct prepinace konfigurace = savingParams(argc, argv);
   //std::cout << konfigurace.port << '\n';
   POP3 pop = POP3();
 
   if(konfigurace.pop3s == true){ // -T
+    //TODO
     //pop.connect_server_sec();
   }
   else{
+    std::cout << "connect_server" << '\n';
     pop.connect_server(konfigurace.server, konfigurace.port);
   }
+
+  //login
+  std::ifstream authFile(konfigurace.auth_file);
+  //authFile.open(pop.auth_file);
+  if(!authFile.is_open()){
+    error("Soubor s autorizacnimi udaji se nepodarilo otevrit", 5);
+  }
+  std::cout << "soubor " << konfigurace.auth_file << " otevren" << '\n';
+
+  std::string line;
+  std::string user;
+  std::string password;
+
+  std::string sUsername = "username = ";
+  std::string sPassword = "password = ";
+
+  std::getline (authFile, line);
+  if(line.find(sUsername) == 0){
+    user = line.substr(sUsername.length());
+    std::cout << "user: " << user << '\n';
+  }
+  else{
+    error("Autorizacni soubor nemá spravnou strukturu", 5);
+  }
+  std::getline (authFile, line);
+  if(line.find(sPassword) == 0){
+    password = line.substr(sPassword.length());
+    std::cout << "pass: " << password << '\n';
+  }
+  else{
+    error("Autorizacni soubor nemá spravnou strukturu", 5);
+  }
+
   return 0;
 }
