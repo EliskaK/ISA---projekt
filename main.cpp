@@ -200,9 +200,8 @@ int main(int argc, char *argv[]) {
     pop.connect_server(konfigurace.server, konfigurace.port);
   }
 
-  //login
+  //get login
   std::ifstream authFile(konfigurace.auth_file);
-  //authFile.open(pop.auth_file);
   if(!authFile.is_open()){
     error("Soubor s autorizacnimi udaji se nepodarilo otevrit", 5);
   }
@@ -221,7 +220,7 @@ int main(int argc, char *argv[]) {
     std::cout << "user: " << user << '\n';
   }
   else{
-    error("Autorizacni soubor nemá spravnou strukturu", 5);
+    error("Autorizacni soubor nema spravnou strukturu", 5);
   }
   std::getline (authFile, line);
   if(line.find(sPassword) == 0){
@@ -229,8 +228,14 @@ int main(int argc, char *argv[]) {
     std::cout << "pass: " << password << '\n';
   }
   else{
-    error("Autorizacni soubor nemá spravnou strukturu", 5);
+    error("Autorizacni soubor nema spravnou strukturu", 5);
   }
+  std::getline (authFile, line);
+  if(!authFile.eof()){
+    error("Autorizacni soubor nema spravnou strukturu", 5);
+  }
+  pop.login(user, password);
+  std::cout << "prihlaseno" << '\n';
 
   return 0;
 }

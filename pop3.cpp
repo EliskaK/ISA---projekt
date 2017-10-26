@@ -53,7 +53,50 @@ bool POP3::connect_server(std::string server, int port){
   if(a < 0){
     error("Nepodarilo se pripojit k serveru", 4);
   }
-
+  sock = sockfd;
   return true; //connect se podarilo
+}
 
+/*
+* Posle prikazy k prihlaseni, vraci true, kdyz se podarilo
+*/
+bool POP3::login(std::string username, std::string password){
+  std::string sending_user = "USER ";
+  sending_user += username;
+  std::cout << sending_user << '\n';
+  send_command(sending_user);
+  get_response();
+  std::string sending_pass = "PASS ";
+  sending_pass += password;
+  std::cout << sending_pass << '\n';
+  send_command(sending_pass);
+  get_response();
+
+  return true;
+}
+
+/*
+* Posle prikaz LOGOUT
+*/
+bool POP3::logout(){
+  return true;
+}
+
+bool POP3::send_command(std::string command){
+  command = command.append("\r\n");
+  int n = write(sock, command.c_str(), command.length());
+  if(n < 0){
+    error("Nepodarilo se poslat prikaz na server", 5);
+  }
+  return true;
+}
+
+bool POP3::get_response(){
+  char buff[201];
+  int n = read(sock, buff, 200);
+  if(n < 0){
+    error("Nepodarilo se ziskat odpoved serveru", 5);
+  }
+  printf("%s\n",buff);
+  return true;
 }
