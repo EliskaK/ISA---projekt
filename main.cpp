@@ -132,6 +132,10 @@ struct prepinace savingParams(int argc, char *argv[]) {
   return prepinac;
 }
 
+// std::string getoutdir(){
+//   return prepinace.out_dir;
+// }
+
 /*
 * Parsovani zadanych argumentu
 */
@@ -191,6 +195,7 @@ int main(int argc, char *argv[]) {
   //std::cout << konfigurace.port << '\n';
   POP3 pop = POP3();
 
+  /****************** CONNECTING SERVER ********************/
   if(konfigurace.pop3s == true){ // -T
     //TODO
     //pop.connect_server_sec();
@@ -200,12 +205,13 @@ int main(int argc, char *argv[]) {
     pop.connect_server(konfigurace.server, konfigurace.port);
   }
 
+  /****************** AUTHORIZATION ********************/
   //get login
   std::ifstream authFile(konfigurace.auth_file);
   if(!authFile.is_open()){
     error("Soubor s autorizacnimi udaji se nepodarilo otevrit", 5);
   }
-  std::cout << "soubor " << konfigurace.auth_file << " otevren" << '\n';
+  //std::cout << "soubor " << konfigurace.auth_file << " otevren" << '\n';
 
   std::string line;
   std::string user;
@@ -217,7 +223,7 @@ int main(int argc, char *argv[]) {
   std::getline (authFile, line);
   if(line.find(sUsername) == 0){
     user = line.substr(sUsername.length());
-    std::cout << "user: " << user << '\n';
+    //std::cout << "user: " << user << '\n';
   }
   else{
     error("Autorizacni soubor nema spravnou strukturu", 5);
@@ -225,7 +231,7 @@ int main(int argc, char *argv[]) {
   std::getline (authFile, line);
   if(line.find(sPassword) == 0){
     password = line.substr(sPassword.length());
-    std::cout << "pass: " << password << '\n';
+    //std::cout << "pass: " << password << '\n';
   }
   else{
     error("Autorizacni soubor nema spravnou strukturu", 5);
@@ -234,8 +240,26 @@ int main(int argc, char *argv[]) {
   if(!authFile.eof()){
     error("Autorizacni soubor nema spravnou strukturu", 5);
   }
-  pop.login(user, password);
-  std::cout << "prihlaseno" << '\n';
+  if(!pop.login(user, password)){
+    //std::cout << "prihlaseno" << '\n';
+    error("Prihlaseni se nezdarilo", 5);
+  }
+  if(!pop.downloadMsg(konfigurace.out_dir)){
+    error("Stazeni zprav se nezdarilo", 5);
+  }
+
+  //int retrieved_msg; // nactene zpravy
+  //retrieved_msg =
+  //pop.messageList(konfigurace.new_only, konfigurace.out_dir);
+  //if(retrieved_msg > 0){
+  //  pop.retr();
+    //pop.del();
+    pop.logout();
+//  }
+  //else {
+  //  error("Nebyly nacteny zadne zpravy", 6);
+//  }
+
 
   return 0;
 }
