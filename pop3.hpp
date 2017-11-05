@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/types.h>
+#include <sys/socket.h>
 
 //#include "main.hpp"
 
@@ -26,18 +27,21 @@ class POP3{
     bool login(std::string username, std::string password);
     bool logout();
     bool send_command(std::string command);
+    bool send_command(std::string command, int num);
     bool get_response();
+    bool get_multiline();
     void messageList (bool new_only, std::string out_dir);
     bool downloadMsg(std::string out_dir);
     void del();
     void top ();
-    void retr ();
+    void retr (int a);
     bool stat ();
   private:
     BIO *bio;
     SSL_CTX *ctx;
     int sock;
     std::string message;
-    char buff[2048] = {0}; //inicializace na nulu
+    std::string buffer; //buffer pro ukladani mailu
+    // char buff[2048] = {0}; //inicializace na nulu
     int numMsg; //pocet zprav
 };
