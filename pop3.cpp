@@ -28,7 +28,6 @@ POP3::~POP3(){
 * Pripojeni k serveru
 */
 bool POP3::connect_server(std::string server, int port){
-
   struct hostent *host;
   struct sockaddr_in server_addr;
   struct in_addr **addresses;
@@ -120,17 +119,20 @@ bool POP3::stat (){
   //char* temp = strstr(buff, "+OK ");
   std::size_t found = message.find("+OK ");
   if (found == std::string::npos){ //prikaz STAT vratil -ERR
-    std::cout << "not found" << '\n';
+    //std::cout << "not found" << '\n';
     return false;
   }
   else{
-    std::cout << "found +OK" << '\n';
+    //std::cout << "found +OK" << '\n';
     numMsg = stoi(message.substr(4, message.find_last_of(" "))); //ziskani cisla oznacujici pocet zprav
-    std::cout << "numMsg: " << numMsg <<'\n';
+    //std::cout << "numMsg: " << numMsg <<'\n';
     return true;
   }
 }
 
+/*
+* Posle prikaz DELE
+*/
 void POP3::del (){
   send_command("DELE 1");
   get_response();
@@ -138,37 +140,30 @@ void POP3::del (){
   std::cout << "S: " << message;
 }
 
-void POP3::top (){
-  send_command("TOP 2 100");
-  get_response();
-  //printf("S: %s",buff);
-  std::cout << "S: " << message;
-}
-
+/*
+* Posle prikaz RETR
+*/
 void POP3::retr (int a){
   isretr = true;
-  //std::cout << "RETR HERE" << '\n';
   send_command("RETR ", a);
-  //char buff[2048] = {0};
-  //std::cout << "RETR HERE" << '\n';
   get_response();
-  std::cout << "S: " << message;
-  // std::cout << "RETR HERE" << '\n';
-  //printf("S: %s",buff);
-  //get_multiline();
-  get_response();
-  std::cout << "RETR HERE" << '\n';
   std::cout << "S: " << message;
   isretr = false;
 }
 
+/*
+* Zjisti, zda je adresar platny, zavola funkci stat() pro zjisteni poctu prijatych zprav,
+* v cyklu vola retr() pro nacitani zprav, ktere pak uklada do souboru do adresare
+*/
 bool POP3::downloadMsg(std::string out_dir){
   //std::cout << "downloadMsg" << '\n';
   char *temp;
   std::string path;
   std::string filename;
+
   temp = new char[out_dir.length() + 1];
   strcpy(temp, out_dir.c_str());
+
   DIR *dir;
   dir = opendir(temp);
   if(dir){
@@ -182,13 +177,16 @@ bool POP3::downloadMsg(std::string out_dir){
     for (int a = 1; a <= numMsg; a++) {
       retr(a);
       path = out_dir;
-      filename = std::string("MAIL").append(std::to_string(a)).append(".txt");
+      filename = std::string("mail_").append(std::to_string(a)).append(".txt");
       path.append("/").append(filename);
       std::ofstream myFile(path);
+      //std::cout << "saving this message: " << message << '\n';
+      message = message.erase(0, message.find_first_of("\r\n") + 2); //odstraneni odpovedi serveru (+OK atd...)
       myFile << message;
     }
+    return true;
   }
-  return true;
+  return false;
 }
 
 /*
@@ -205,7 +203,7 @@ bool POP3::send_command(std::string command){
 }
 
 /*
-* Posle dany prikaz (s cislem zpravy) na server
+* Posle dany prikaz (s identifikatorem zpravy) na server
 */
 bool POP3::send_command(std::string command, int num){
   command = command.append(std::to_string(num));
@@ -222,39 +220,34 @@ bool POP3::send_command(std::string command, int num){
 * Precte odpoved ze serveru
 */
 bool POP3::get_response(){
+  //std::cout << "get_response" << '\n';
   message.clear();
   std::string reply;
   std::size_t pos;
-  reply = read_from_server();
-  std::cout << "REPLY1: " << reply << '\n';
-  if(isretr == true){ //chci celou zprávu
-    pos = reply.find_last_of(".");
-
-    if (pos != std::string::npos) {
-      //std::cout << "REPLY: " << reply << '\n';
-      std::cout << "FOUND DOT" << '\n';
+  bool is_ok = true;
+  while(is_ok){
+    reply = read_from_server();
+    //std::cout << "new reply: "<< reply << '\n';
+    pos = is_end_of_message(reply);
+    if(pos != std::string::npos){ //konec zpravy nalezen
+      //std::cout << "END OF MESSAGE" << '\n';
+      is_ok = false;
     }
-    message = reply;
+    message += reply;
   }
-  else{
-    pos = reply.find_first_of("\r\n");
-    if (pos != std::string::npos) {
-      reply = reply.substr(0, pos);
-      std::cout << "REPLY: " << reply << '\n';
-    }
-    message = reply;
-    message += "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-  }
-
+  //std::cout << "MESSAGE: "<< message << '\n';
   return true;
 }
 
+/*
+* Cte ze serveru do bufferu, vraci nactene znaky
+*/
 std::string POP3::read_from_server(){
   size_t num = 0;
   std::string reply;
   char *buff;
   buff = new char[BUFFSIZE];
-  //memset(buff, 0, 2048); // vyprazdneni bufferu
+  memset(buff, 0, 2048); // vyprazdneni bufferu
   num = read(sock, buff, BUFFSIZE);
   if(num <= 0){
     error("Nepodarilo se ziskat odpoved serveru", 5);
@@ -265,43 +258,22 @@ std::string POP3::read_from_server(){
   return reply;
 }
 
-/*bool POP3::get_multiline (){
-  std::cout << "TADY1" << '\n';
-  std::string reply;
-
-  char *buff;
-  int buffsize = 2048;
-  buff = new char[buffsize + 1];
-  memset(buff, 0, 2048); // vyprazdneni bufferu
-  message = '\0';
-  reply = '\0';
-  int n;
-  bool cont; //continue
-std::cout << "TADY2" << '\n';
-  //std::string buffer;
-  cont = true;
-  while(cont){
-    std::cout << "TADY in while" << '\n';
-    buff = new char[buffsize + 1];
-    std::cout << "TADY in while" << '\n';
-    n = read(sock, buff, buffsize - 1);
-    std::cout << "n: " << n <<'\n';
-    if(n < 0){
-      delete [] buff;
-      error("Spojeni ukonceno", 5);
+/*
+* Overuje, zda uz je konec zpravy
+* - pokud je isretr = true -> pak hleda tecku
+* - pokud neni, jedna se o obycejnou zpravu od serveru a hleda CRLF
+*/
+size_t POP3::is_end_of_message(std::string msg){
+  size_t position;
+  if(isretr == true){
+    position = msg.find("\r\n.\r\n");
+    if(position != std::string::npos){
+      //std::cout << "FOUND DOT" << '\n';
     }
-    std::cout << "TADY" << '\n';
-    reply = buff;
-    size_t found = reply.find_last_of(".");
-    std::cout << "FOUND: "<< found << '\n';
-    if (found != std::string::npos){
-      std::cout << "found DOT" << '\n';
-      cont = false;
-      //break;
-    }
-    message.append(reply);
-    delete [] buff;
-    cont = false;
   }
-  return true;
-}*/
+  else{
+    position = msg.find("\r\n");
+    //std::cout << "!!obycejna odpoved!!" << '\n';
+  }
+  return position;
+}

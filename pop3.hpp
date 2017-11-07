@@ -31,20 +31,19 @@ class POP3{
     bool send_command(std::string command, int num);
     bool get_response();
     std::string read_from_server();
-    //bool get_multiline();
+    size_t is_end_of_message(std::string msg);
     void messageList (bool new_only, std::string out_dir);
     bool downloadMsg(std::string out_dir);
     void del();
-    void top ();
     void retr (int a);
     bool stat ();
+
   private:
     BIO *bio;
     SSL_CTX *ctx;
     int sock;
     std::string message;
     std::string buffer; //buffer pro ukladani mailu
-    // char buff[2048] = {0}; //inicializace na nulu
     int numMsg; //pocet zprav
     bool isretr = false;
 };

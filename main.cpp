@@ -243,22 +243,10 @@ int main(int argc, char *argv[]) {
   if(!pop.login(user, password)){
     error("Prihlaseni se nezdarilo", 5);
   }
+  /*************** DOWNLOADING MESSAGES *****************/
   if(!pop.downloadMsg(konfigurace.out_dir)){
     error("Stazeni zprav se nezdarilo", 5);
   }
-
-  //int retrieved_msg; // nactene zpravy
-  //retrieved_msg =
-  //pop.messageList(konfigurace.new_only, konfigurace.out_dir);
-  //if(retrieved_msg > 0){
-  //  pop.retr();
-    //pop.del();
-    pop.logout();
-//  }
-  //else {
-  //  error("Nebyly nacteny zadne zpravy", 6);
-//  }
-
-
+  pop.logout();
   return 0;
 }
