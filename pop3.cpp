@@ -88,9 +88,15 @@ bool POP3::login(std::string username, std::string password){
 }
 
 /*
-* Posle prikaz LOGOUT
+* Posle prikaz QUIT
 */
-bool POP3::logout(){
+bool POP3::quit(){
+  if(isdele == true){ //zpravy se mely smazat ze serveru
+    std::cout << numMsg << " message(s) downloaded and deleted from server." << '\n';
+  }
+  else{
+    std::cout << numMsg << " message(s) downloaded." <<'\n';
+  }
   send_command("QUIT");
   get_response();
   //printf("S: %s",buff);
@@ -131,17 +137,21 @@ bool POP3::stat (){
 }
 
 /*
-* Posle prikaz DELE
+* Posle prikaz DELE n
 */
-void POP3::del (){
-  send_command("DELE 1");
-  get_response();
-  //printf("S: %s",buff);
-  std::cout << "S: " << message;
+void POP3::dele(){
+  isdele = true;
+  if(stat() == true){ //ziskani numMsg
+    for(int a = 1; a <= numMsg; a++){ //cyklus, ktery posila prikaz DELE n pro smazani postupne vsech zprav
+      send_command("DELE ", a);
+      get_response();
+      std::cout << "S: " << message;
+    }
+  }
 }
 
 /*
-* Posle prikaz RETR
+* Posle prikaz RETR n
 */
 void POP3::retr (int a){
   isretr = true;
@@ -179,11 +189,12 @@ bool POP3::downloadMsg(std::string out_dir){
       path = out_dir;
       filename = std::string("mail_").append(std::to_string(a)).append(".txt");
       path.append("/").append(filename);
-      std::ofstream myFile(path);
+      std::ofstream myFile(path); //vytvoreni souboru
       //std::cout << "saving this message: " << message << '\n';
       message = message.erase(0, message.find_first_of("\r\n") + 2); //odstraneni odpovedi serveru (+OK atd...)
       myFile << message;
     }
+    //std::cout << numMsg << " message(s) downloaded." <<'\n';
     return true;
   }
   return false;

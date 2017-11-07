@@ -26,7 +26,7 @@ class POP3{
     ~POP3();
     bool connect_server(std::string server, int port);
     bool login(std::string username, std::string password);
-    bool logout();
+    bool quit();
     bool send_command(std::string command);
     bool send_command(std::string command, int num);
     bool get_response();
@@ -34,7 +34,7 @@ class POP3{
     size_t is_end_of_message(std::string msg);
     void messageList (bool new_only, std::string out_dir);
     bool downloadMsg(std::string out_dir);
-    void del();
+    void dele();
     void retr (int a);
     bool stat ();
 
@@ -46,4 +46,5 @@ class POP3{
     std::string buffer; //buffer pro ukladani mailu
     int numMsg; //pocet zprav
     bool isretr = false;
+    bool isdele = false;
 };
