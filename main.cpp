@@ -241,7 +241,6 @@ int main(int argc, char *argv[]) {
     error("Autorizacni soubor nema spravnou strukturu", 5);
   }
   if(!pop.login(user, password)){
-    //std::cout << "prihlaseno" << '\n';
     error("Prihlaseni se nezdarilo", 5);
   }
   if(!pop.downloadMsg(konfigurace.out_dir)){

@@ -18,6 +18,7 @@
 #include <sys/socket.h>
 
 //#include "main.hpp"
+#define BUFFSIZE 2048 //velikost bufferu pro odpoved serveru
 
 class POP3{
   public:
@@ -29,7 +30,8 @@ class POP3{
     bool send_command(std::string command);
     bool send_command(std::string command, int num);
     bool get_response();
-    bool get_multiline();
+    std::string read_from_server();
+    //bool get_multiline();
     void messageList (bool new_only, std::string out_dir);
     bool downloadMsg(std::string out_dir);
     void del();
@@ -44,4 +46,5 @@ class POP3{
     std::string buffer; //buffer pro ukladani mailu
     // char buff[2048] = {0}; //inicializace na nulu
     int numMsg; //pocet zprav
+    bool isretr = false;
 };
