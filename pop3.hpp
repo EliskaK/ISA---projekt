@@ -34,7 +34,7 @@ class POP3{
     size_t is_end_of_message(std::string msg);
     void messageList (bool new_only, std::string out_dir);
     bool downloadMsg(std::string out_dir);
-    void del();
+    void dele();
     void retr (int a);
     bool stat ();
 

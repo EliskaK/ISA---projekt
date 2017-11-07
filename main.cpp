@@ -132,10 +132,6 @@ struct prepinace savingParams(int argc, char *argv[]) {
   return prepinac;
 }
 
-// std::string getoutdir(){
-//   return prepinace.out_dir;
-// }
-
 /*
 * Parsovani zadanych argumentu
 */
@@ -188,8 +184,9 @@ void help(){
   exit(0);
 }
 
-
-
+/*
+* Zavola parser na argumenty, pripoji se k serveru, zpracuje autorizacni udaje, zavola funkci pro stahovani zprav
+*/
 int main(int argc, char *argv[]) {
   struct prepinace konfigurace = savingParams(argc, argv);
   //std::cout << konfigurace.port << '\n';
@@ -201,7 +198,7 @@ int main(int argc, char *argv[]) {
     //pop.connect_server_sec();
   }
   else{
-    std::cout << "connect_server" << '\n';
+    //std::cout << "connect_server" << '\n';
     pop.connect_server(konfigurace.server, konfigurace.port);
   }
 
@@ -243,10 +240,17 @@ int main(int argc, char *argv[]) {
   if(!pop.login(user, password)){
     error("Prihlaseni se nezdarilo", 5);
   }
+  /***************** DELETING MESSAGES *******************/
+  if(konfigurace.del == true){ //pokud se zpravy maji smazat, pak se nic dalsiho nedeje a aplikace se ukonci
+    pop.dele();
+    pop.logout(); //user se musi odhlasit, jinak se zmeny na server neulozi!
+    return 0;
+  }
   /*************** DOWNLOADING MESSAGES *****************/
   if(!pop.downloadMsg(konfigurace.out_dir)){
     error("Stazeni zprav se nezdarilo", 5);
   }
-  pop.logout();
+
+
   return 0;
 }
