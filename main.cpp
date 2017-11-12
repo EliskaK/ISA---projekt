@@ -194,8 +194,8 @@ int main(int argc, char *argv[]) {
 
   /****************** CONNECTING SERVER ********************/
   if(konfigurace.pop3s == true){ // -T
-    //TODO
-    //pop.connect_server_sec();
+
+    pop.connect_server_sec(konfigurace.server, konfigurace.port, konfigurace.certaddr, konfigurace.certfile);
   }
   else{
     //std::cout << "connect_server" << '\n';
@@ -250,5 +250,9 @@ int main(int argc, char *argv[]) {
     pop.quit(); //user se musi odhlasit, jinak se zmeny na server neulozi!
     return 0;
   }
+  else{
+    pop.quit();
+  }
+  pop.finish();
   return 0;
 }
