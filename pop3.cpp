@@ -54,6 +54,12 @@ bool POP3::connect_server_sec(std::string server, int port, std::string cert_dir
   if(BIO_do_connect(bio) <= 0){
     error("BIO pripojeni se nezdarilo", 8);
   }
+  if(SSL_get_peer_certificate(ssl) == NULL){
+    error("Server nevratil zadny SSL certifkat", 8);
+  }
+  if(SSL_get_verify_result(ssl) != X509_V_OK){
+    error("Overeni platnosti certifikatu SSL se nezdarilo.", 8);
+  }
   get_response();
   std::cout << "S: " << message;
   std::cout << "jsem sifrovane pripojen" << '\n';

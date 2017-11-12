@@ -4,9 +4,7 @@
 ** Eliska Kadlecova
 ** login: xkadle34
 */
-/*#include <iostream>
-#include <string>
-#include <algorithm>*/
+
 #include "main.hpp"
 
 
@@ -134,6 +132,7 @@ struct prepinace savingParams(int argc, char *argv[]) {
 
 /*
 * Parsovani zadanych argumentu
+* Inspirovano z: http://stackoverflow.com/questions/865668/how-to-parse-command-line-arguments-in-c
 */
 char* parseArg(char ** begin, char ** end, const std::string & opt, bool value){
   char ** itr = std::find(begin, end, opt);
