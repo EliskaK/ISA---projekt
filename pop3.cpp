@@ -9,13 +9,11 @@
 #include "main.hpp"
 
 POP3::POP3(){ //konstruktor
-//std::cout << "konstruktor" << '\n';
-
 /* Initializing OpenSSL */
-SSL_load_error_strings();
-ERR_load_BIO_strings();
-OpenSSL_add_all_algorithms();
-SSL_library_init();
+  SSL_load_error_strings();
+  ERR_load_BIO_strings();
+  OpenSSL_add_all_algorithms();
+  SSL_library_init();
 }
 
 POP3::~POP3(){
@@ -61,8 +59,7 @@ bool POP3::connect_server_sec(std::string server, int port, std::string cert_dir
     error("Overeni platnosti certifikatu SSL se nezdarilo.", 8);
   }
   get_response();
-  std::cout << "S: " << message;
-  std::cout << "jsem sifrovane pripojen" << '\n';
+  // std::cout << "S: " << message;
   return true;
 }
 
@@ -102,8 +99,22 @@ bool POP3::connect_server(std::string server, int port){
   }
   sock = sockfd;
   get_response();
-  std::cout << "S: " << message;
-  return true; //connect se podarilo
+  // std::cout << "S: " << message;
+  if(isOK() == true){
+    return true; //connect se podarilo
+  }
+  else{
+    return false; //connect se nepodarilo
+  }
+}
+
+bool POP3::isOK(){
+  if(message.find("+OK ") != std::string::npos){
+    return true;
+  }
+  else{
+    return false;
+  }
 }
 
 /*
@@ -120,23 +131,30 @@ bool POP3::login(std::string username, std::string password){
     send_command(sending_user);
   }
   get_response();
+  if(isOK() == true){
 
-  //printf("S: %s",buff);
-  std::cout << "S: " << message;
-  std::string sending_pass = "PASS ";
-  sending_pass += password;
+      // std::cout << "S: " << message;
+      std::string sending_pass = "PASS ";
+      sending_pass += password;
 
-  if(secured){
-    send_command_sec(sending_pass);
+      if(secured){
+        send_command_sec(sending_pass);
+      }
+      else{
+        send_command(sending_pass);
+      }
+      get_response();
+      // std::cout << "S: " << message;
+      if(isOK() == true){
+        return true;
+      }
+      else{
+        return false;
+      }
   }
   else{
-    send_command(sending_pass);
+    return false;
   }
-  get_response();
-  //printf("S: %s",buff);
-  std::cout << "S: " << message;
-
-  return true;
 }
 
 /*
@@ -144,10 +162,10 @@ bool POP3::login(std::string username, std::string password){
 */
 bool POP3::quit(){
   if(isdele == true){ //zpravy se mely smazat ze serveru
-    std::cout << numMsg << " message(s) downloaded and deleted from server." << '\n';
+    std::cout << "Stazeno a smazano zprav: " << numMsg <<'\n';
   }
   else{
-    std::cout << numMsg << " message(s) downloaded." <<'\n';
+    std::cout << "Stazeno zprav: " << numMsg <<'\n';
   }
 
   if(secured){
@@ -157,16 +175,21 @@ bool POP3::quit(){
     send_command("QUIT");
   }
   get_response();
-  //printf("S: %s",buff);
-  std::cout << "S: " << message;
-
-  return true;
+  // std::cout << "S: " << message;
+  if(isOK() == true){
+    return true;
+  }
+  else{
+    return false;
+  }
 }
 
 void POP3::finish(){
   if(secured){
+    BIO_reset(bio);
     SSL_CTX_free(ctx);
     BIO_free_all(bio);
+    bio = NULL;
   }
 }
 
@@ -174,7 +197,6 @@ void POP3::finish(){
 * Posle prikaz STAT, overi, zda se provedl v poradku. Kdyz ne, konci, kdyz ano, vypreparuje pocet zprav ve schrance
 */
 bool POP3::stat (){
-
   if(secured){
     send_command_sec("STAT");
   }
@@ -182,26 +204,20 @@ bool POP3::stat (){
     send_command("STAT");
   }
   get_response();
-  //printf("S: %s",buff);
-  std::cout << "S: " << message;
-  //char* temp = strstr(buff, "+OK ");
-  std::size_t found = message.find("+OK ");
-  if (found == std::string::npos){ //prikaz STAT vratil -ERR
-    //std::cout << "not found" << '\n';
-    return false;
+  // std::cout << "S: " << message;
+  if(isOK() == true){
+    numMsg = stoi(message.substr(4, message.find_last_of(" ")));
+    return true;
   }
   else{
-    //std::cout << "found +OK" << '\n';
-    numMsg = stoi(message.substr(4, message.find_last_of(" "))); //ziskani cisla oznacujici pocet zprav
-    //std::cout << "numMsg: " << numMsg <<'\n';
-    return true;
+    return false; //prikaz STAT vratil -ERR
   }
 }
 
 /*
 * Posle prikaz DELE n
 */
-void POP3::dele(){
+bool POP3::dele(){
   isdele = true;
   if(stat() == true){ //ziskani numMsg
     for(int a = 1; a <= numMsg; a++){ //cyklus, ktery posila prikaz DELE n pro smazani postupne vsech zprav
@@ -213,15 +229,22 @@ void POP3::dele(){
         send_command("DELE ", a);
       }
       get_response();
-      std::cout << "S: " << message;
+      // std::cout << "S: " << message;
+      if(isOK() == true){
+        return true;
+      }
+      else{
+        return false;
+      }
     }
   }
+  return false;
 }
 
 /*
 * Posle prikaz RETR n
 */
-void POP3::retr (int a){
+bool POP3::retr (int a){
   isretr = true;
   if(secured){
     send_command_sec("RETR ", a);
@@ -230,8 +253,15 @@ void POP3::retr (int a){
     send_command("RETR ", a);
   }
   get_response();
-  std::cout << "S: " << message;
+  // std::cout << "S: " << message;
   isretr = false;
+  if(isOK() == true){
+    return true;
+  }
+  else{
+    return false;
+  }
+
 }
 
 /*
@@ -256,18 +286,21 @@ bool POP3::downloadMsg(std::string out_dir){
     error("Otevreni slozky pro vystup se nezdarilo", 5);
   }
   if(stat() == true){
-    //std::cout << "stat is true" << '\n';
     for (int a = 1; a <= numMsg; a++) {
-      retr(a);
-      path = out_dir;
-      filename = std::string("mail_").append(std::to_string(a)).append(".txt");
-      path.append("/").append(filename);
-      std::ofstream myFile(path); //vytvoreni souboru
-      //std::cout << "saving this message: " << message << '\n';
-      message = message.erase(0, message.find_first_of("\r\n") + 2); //odstraneni odpovedi serveru (+OK atd...)
-      myFile << message;
+      if(retr(a) == true){
+        path = out_dir;
+        filename = std::string("mail_").append(std::to_string(a)).append(".txt");
+        path.append("/").append(filename);
+        std::ofstream myFile(path); //vytvoreni souboru
+        message = message.erase(0, message.find_first_of("\r\n") + 2); //odstraneni odpovedi serveru (+OK atd...)
+        size_t pos = message.find(".\r\n");
+        message = message.erase(pos, pos + 3);
+        myFile << message;
+      }
+      else{
+        return false;
+      }
     }
-    //std::cout << numMsg << " message(s) downloaded." <<'\n';
     return true;
   }
   return false;
@@ -278,7 +311,7 @@ bool POP3::downloadMsg(std::string out_dir){
 */
 bool POP3::send_command(std::string command){
   command = command.append("\r\n");
-  std::cout << "C: " << command;
+  //std::cout << "C: " << command;
   int n = write(sock, command.c_str(), command.length());
   if(n < 0){
     error("Nepodarilo se poslat prikaz na server", 5);
@@ -291,7 +324,7 @@ bool POP3::send_command(std::string command){
 */
 bool POP3::send_command_sec(std::string command){
   command = command.append("\r\n");
-  std::cout << "C: " << command;
+  //std::cout << "C: " << command;
   int n = BIO_write(bio, command.c_str(), (int)command.length());
   if(n <= 0){
     error("Nepodarilo se poslat prikaz na server", 5);
@@ -305,7 +338,7 @@ bool POP3::send_command_sec(std::string command){
 bool POP3::send_command(std::string command, int num){
   command = command.append(std::to_string(num));
   command = command.append("\r\n");
-  std::cout << "C: " << command;
+  //std::cout << "C: " << command;
   int n = write(sock, command.c_str(), command.length());
   if(n < 0){
     error("Nepodarilo se poslat prikaz na server", 5);
@@ -319,7 +352,7 @@ bool POP3::send_command(std::string command, int num){
 bool POP3::send_command_sec(std::string command, int num){
   command = command.append(std::to_string(num));
   command = command.append("\r\n");
-  std::cout << "C: " << command;
+  //std::cout << "C: " << command;
   int n = BIO_write(bio, command.c_str(), (int)command.length());
   if(n <= 0){
     error("Nepodarilo se poslat prikaz na server", 5);
@@ -343,15 +376,12 @@ bool POP3::get_response(){
     else{
       reply = read_from_server();
     }
-    //std::cout << "new reply: "<< reply << '\n';
     pos = is_end_of_message(reply);
     if(pos != std::string::npos){ //konec zpravy nalezen
-      //std::cout << "END OF MESSAGE" << '\n';
       is_ok = false;
     }
     message += reply;
   }
-  //std::cout << "MESSAGE: "<< message << '\n';
   return true;
 }
 
@@ -362,9 +392,9 @@ std::string POP3::read_from_server(){
   size_t num = 0;
   std::string reply;
   char *buff;
-  buff = new char[BUFFSIZE];
-  memset(buff, 0, 2048); // vyprazdneni bufferu
-  num = read(sock, buff, BUFFSIZE);
+  buff = new char[1024];
+  memset(buff, 0, 1024); // vyprazdneni bufferu
+  num = read(sock, buff, 1024);
   if(num <= 0){
     error("Nepodarilo se ziskat odpoved serveru", 5);
   }
@@ -381,9 +411,9 @@ std::string POP3::read_from_server_sec(){
   int num = 0;
   std::string reply;
   char *buff;
-  buff = new char[BUFFSIZE];
+  buff = new char[1024];
   memset(buff, 0, 2048); // vyprazdneni bufferu
-  num = BIO_read(bio, buff, BUFFSIZE);
+  num = BIO_read(bio, buff, 1024);
   if(num == 0){
     error("Nepodarilo se ziskat odpoved serveru", 5);
   }
@@ -408,7 +438,6 @@ size_t POP3::is_end_of_message(std::string msg){
   }
   else{
     position = msg.find("\r\n");
-    //std::cout << "!!obycejna odpoved!!" << '\n';
   }
   return position;
 }

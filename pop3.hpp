@@ -4,6 +4,7 @@
 ** Eliska Kadlecova
 ** login: xkadle34
 */
+
 #include <iostream>
 #include <string>
 #include <algorithm>
@@ -20,9 +21,6 @@
 #include "openssl/bio.h"
 #include "openssl/ssl.h"
 #include "openssl/err.h"
-
-//#include "main.hpp"
-#define BUFFSIZE 2048 //velikost bufferu pro odpoved serveru
 
 class POP3{
   public:
@@ -41,10 +39,11 @@ class POP3{
     std::string read_from_server_sec();
     size_t is_end_of_message(std::string msg);
     bool downloadMsg(std::string out_dir);
-    void dele();
-    void retr (int a);
+    bool dele();
+    bool retr (int a);
     bool stat ();
     void finish();
+    bool isOK();
 
   private:
     BIO *bio;
@@ -52,7 +51,6 @@ class POP3{
     SSL *ssl;
     int sock;
     std::string message;
-    std::string buffer; //buffer pro ukladani mailu
     int numMsg; //pocet zprav
     bool isretr = false;
     bool isdele = false;

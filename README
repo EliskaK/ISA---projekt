@@ -1,0 +1,28 @@
+# POP3 klient s podporou TLS
+# Autor: Eliška Kadlecová, xkadle34@stud.fit.vutbr.cz
+# Datum: 16.11.2017
+
+# Popis:
+  Program slouží ke stažení elektronické pošty přes POP3 protokol. Při zadání pouze povinných parametrů
+  stáhne do určené složky zprávy ze serveru (každou zprávu do zvláštního souboru). Počet stažených zpráv 
+  vypíše na výstup. Dalšími parametry lze tuto základní funkcionalitu měnit.
+
+# Omezení:
+  Program neumí stáhnout pouze nové zprávy a neumí příkaz STLS. Parametry -n a -S pouze detekuje.
+
+# Spuštění:
+  $ ./popcl <server> [-p <port>] [-T|-S [-c <certfile>] [-C <certaddr>]] [-d] [-n] -a <auth_file> -o <out_dir>
+
+# Překlad:
+  $ make         - přeložení projektu
+  $ make clean   - smazání přeloženého projektu
+  $ make tar     - vytvoření archivu tar
+
+# Seznam souborů:
+    Makefile
+    README
+    main.cpp
+    main.hpp
+    pop3.cpp
+    pop3.hpp
+    manual.pdf

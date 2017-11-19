@@ -1,6 +1,6 @@
 
 popcl : main.o pop3.o
-	g++ -std=gnu++11 -Wall -Wextra -o popcl main.o pop3.o
+	g++ -std=gnu++11 -Wall -Wextra -o popcl main.o pop3.o -lcrypto -lssl
 
 main.o : main.cpp main.hpp
 	g++ -std=gnu++11 -Wall -Wextra -c -o main.o main.cpp

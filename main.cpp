@@ -38,7 +38,7 @@ struct prepinace savingParams(int argc, char *argv[]) {
     help();
   }
   prepinac.server = argv[1];
-  std::cout << "server: " << prepinac.server <<'\n';
+//  std::cout << "server: " << prepinac.server <<'\n';
 
   char * cf; //certfile
   char * ca; //certaddr
@@ -57,7 +57,7 @@ struct prepinace savingParams(int argc, char *argv[]) {
       //TODO - SSL_CTX_set_default_verify_paths()
     }
   }
-  std::cout << "T: " << prepinac.pop3s <<'\n';
+//  std::cout << "T: " << prepinac.pop3s <<'\n';
 
   //parametr -S
   if(parseArg(argv, argv + argc, "-S", false)){
@@ -74,10 +74,10 @@ struct prepinace savingParams(int argc, char *argv[]) {
       //TODO - SSL_CTX_set_default_verify_paths()
     }
   }
-  std::cout << "S: " << prepinac.stls <<'\n';
+//  std::cout << "S: " << prepinac.stls <<'\n';
 
-  std::cout << "certfile: " << prepinac.certfile <<'\n';
-  std::cout << "certaddr: " << prepinac.certaddr <<'\n';
+//  std::cout << "certfile: " << prepinac.certfile <<'\n';
+//  std::cout << "certaddr: " << prepinac.certaddr <<'\n';
 
   //port:
   char *p;
@@ -92,18 +92,18 @@ struct prepinace savingParams(int argc, char *argv[]) {
     prepinac.port = 110;
   }
 
-  std::cout << "port: " << prepinac.port <<'\n';
+//  std::cout << "port: " << prepinac.port <<'\n';
 
   //nove zpravy
   if (parseArg(argv, argv + argc, "-n", false)){
     prepinac.new_only = true;
   }
-  std::cout << "new_only: " << prepinac.new_only <<'\n';
+//  std::cout << "new_only: " << prepinac.new_only <<'\n';
 
   if (parseArg(argv, argv + argc, "-d", false)){
     prepinac.del = true;
   }
-  std::cout << "del: " << prepinac.del <<'\n';
+//  std::cout << "del: " << prepinac.del <<'\n';
 
   //auth_file
   char * auth;
@@ -114,7 +114,7 @@ struct prepinace savingParams(int argc, char *argv[]) {
   else{
     error("Povinny parametr -a chybi", 2);
   }
-  std::cout << "auth_file: " << prepinac.auth_file <<'\n';
+//  std::cout << "auth_file: " << prepinac.auth_file <<'\n';
 
   //out_dir
   char * out;
@@ -125,7 +125,7 @@ struct prepinace savingParams(int argc, char *argv[]) {
   else{
     error("Povinny parametr -o chybi", 2);
   }
-  std::cout << "out_dir: " << prepinac.out_dir <<'\n';
+//  std::cout << "out_dir: " << prepinac.out_dir <<'\n';
 
   return prepinac;
 }
@@ -198,7 +198,9 @@ int main(int argc, char *argv[]) {
   }
   else{
     //std::cout << "connect_server" << '\n';
-    pop.connect_server(konfigurace.server, konfigurace.port);
+    if((pop.connect_server(konfigurace.server, konfigurace.port)) != true){
+      error("Pripojeni se nezdarilo.", 4);
+    }
   }
 
   /****************** AUTHORIZATION ********************/
@@ -207,8 +209,6 @@ int main(int argc, char *argv[]) {
   if(!authFile.is_open()){
     error("Soubor s autorizacnimi udaji se nepodarilo otevrit", 5);
   }
-  //std::cout << "soubor " << konfigurace.auth_file << " otevren" << '\n';
-
   std::string line;
   std::string user;
   std::string password;
