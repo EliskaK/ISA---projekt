@@ -53,9 +53,6 @@ struct prepinace savingParams(int argc, char *argv[]) {
     if(ca){
       prepinac.certaddr = ca;
     }
-    else{
-      //TODO - SSL_CTX_set_default_verify_paths()
-    }
   }
 //  std::cout << "T: " << prepinac.pop3s <<'\n';
 
@@ -70,9 +67,6 @@ struct prepinace savingParams(int argc, char *argv[]) {
     if(ca){
       prepinac.certaddr = ca;
     }
-    else{
-      //TODO - SSL_CTX_set_default_verify_paths()
-    }
   }
 //  std::cout << "S: " << prepinac.stls <<'\n';
 
@@ -83,6 +77,9 @@ struct prepinace savingParams(int argc, char *argv[]) {
   char *p;
   p = parseArg(argv, argv + argc, "-p", true);
   if (p){
+    if(std::atoi(p) <= 0){
+      error("Spatne zadany parametr -p", 1);
+    }
     prepinac.port = std::atoi(p);
   }
   else if (prepinac.pop3s == true){ //pokud je zadan parametr -T

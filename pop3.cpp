@@ -71,7 +71,6 @@ bool POP3::connect_server(std::string server, int port){
   struct hostent *host;
   struct sockaddr_in server_addr;
   struct in_addr **addresses;
-  //std::cout << "server: " << server << '\n';
   host = gethostbyname(server.c_str());
   if (!host){
     error("Server se nepodarilo nacist", 4);
@@ -92,9 +91,7 @@ bool POP3::connect_server(std::string server, int port){
   server_addr.sin_family = AF_INET;
   server_addr.sin_port = htons((uint16_t)port);
   memcpy(&(server_addr.sin_addr), host->h_addr, host->h_length);
-  int a = connect(sockfd, (sockaddr*) &server_addr, sizeof(server_addr));
-  //std::cout << "a: "<< a << '\n';
-  if(a < 0){
+  if(connect(sockfd, (sockaddr*) &server_addr, sizeof(server_addr)) < 0){
     error("Nepodarilo se pripojit k serveru", 4);
   }
   sock = sockfd;
@@ -190,6 +187,9 @@ void POP3::finish(){
     SSL_CTX_free(ctx);
     BIO_free_all(bio);
     bio = NULL;
+  }
+  else{
+    close(sock);
   }
 }
 
